@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Background palette (dark theme) -->
+    <color name="bg_dark">#FF0A0A1A</color>
+    <color name="bg_card">#FF12122A</color>
+    <color name="bg_card_elevated">#FF1A1A38</color>
+
+    <!-- Accent -->
+    <color name="accent_purple">#FF6C63FF</color>
+    <color name="accent_purple_ripple">#336C63FF</color>
+    <color name="accent_cyan">#FF00E5FF</color>
+    <color name="accent_cyan_ripple">#3300E5FF</color>
+
+    <!-- Text -->
+    <color name="text_primary">#FFFFFFFF</color>
+    <color name="text_secondary">#FFB0B0C8</color>
+    <color name="text_hint">#FF5C5C80</color>
+
+    <!-- System -->
+    <color name="colorPrimary">@color/accent_purple</color>
+    <color name="colorPrimaryDark">@color/bg_dark</color>
+    <color name="colorAccent">@color/accent_cyan</color>
+</resources>

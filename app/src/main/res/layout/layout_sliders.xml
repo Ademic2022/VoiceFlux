@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="20dp">
+
+    <!-- Pitch -->
+    <TextView style="@style/SliderLabel" android:text="@string/pitch" />
+    <SeekBar
+        android:id="@+id/sliderPitch"
+        style="@style/SliderStyle"
+        android:max="240"
+        android:progress="120" />
+
+    <!-- Formant -->
+    <TextView style="@style/SliderLabel" android:text="@string/formant" />
+    <SeekBar
+        android:id="@+id/sliderFormant"
+        style="@style/SliderStyle"
+        android:max="240"
+        android:progress="120" />
+
+    <!-- Reverb -->
+    <TextView style="@style/SliderLabel" android:text="@string/reverb" />
+    <SeekBar
+        android:id="@+id/sliderReverb"
+        style="@style/SliderStyle"
+        android:max="100"
+        android:progress="0" />
+
+    <!-- Distortion -->
+    <TextView style="@style/SliderLabel" android:text="@string/distortion" />
+    <SeekBar
+        android:id="@+id/sliderDistortion"
+        style="@style/SliderStyle"
+        android:max="100"
+        android:progress="0" />
+
+    <!-- Echo -->
+    <TextView style="@style/SliderLabel" android:text="@string/echo" />
+    <SeekBar
+        android:id="@+id/sliderEcho"
+        style="@style/SliderStyle"
+        android:max="100"
+        android:progress="0" />
+
+    <!-- Gain -->
+    <TextView style="@style/SliderLabel" android:text="@string/gain" />
+    <SeekBar
+        android:id="@+id/sliderGain"
+        style="@style/SliderStyle"
+        android:max="200"
+        android:progress="100" />
+
+</LinearLayout>

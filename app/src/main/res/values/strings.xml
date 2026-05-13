@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">VoiceFlux</string>
+    <string name="start">Start</string>
+    <string name="stop">Stop</string>
+    <string name="voice_presets">VOICE PRESETS</string>
+    <string name="controls">Effect Controls</string>
+    <string name="expand_controls">Expand controls</string>
+    <string name="pitch">Pitch</string>
+    <string name="formant">Formant</string>
+    <string name="reverb">Reverb</string>
+    <string name="distortion">Distortion</string>
+    <string name="echo">Echo</string>
+    <string name="gain">Gain</string>
+    <string name="latency_default">-- ms</string>
+    <string name="latency_fmt">%.0f ms</string>
+    <string name="permission_denied">Microphone permission required</string>
+
+    <!-- Notification -->
+    <string name="notif_running">Voice changer active</string>
+    <string name="notif_stop">Stop</string>
+    <string name="notif_channel_name">VoiceFlux Audio</string>
+    <string name="notif_channel_desc">Live voice processing notification</string>
+</resources>
