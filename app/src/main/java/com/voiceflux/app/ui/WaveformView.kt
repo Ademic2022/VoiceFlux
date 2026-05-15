@@ -23,6 +23,9 @@ class WaveformView @JvmOverloads constructor(
 
     private var samples: FloatArray = FloatArray(512)
 
+    // Automatic gain control: track a decaying peak so quiet signals fill the view
+    private var agcPeak = 0.01f
+
     private val wavePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         strokeWidth = 3f
         style       = Paint.Style.STROKE
@@ -47,10 +50,17 @@ class WaveformView @JvmOverloads constructor(
         set(value) { field = value; invalidate() }
 
     fun update(data: FloatArray) {
-        if (data.isNotEmpty()) {
-            samples = data.copyOf()
-            invalidate()
-        }
+        if (data.isEmpty()) return
+
+        // Auto-gain: find peak, decay slowly, then normalise all samples so quiet
+        // voice still fills the visualiser even at low mic levels.
+        var peak = 0f
+        for (s in data) { val a = abs(s); if (a > peak) peak = a }
+        agcPeak = maxOf(agcPeak * 0.90f, peak, 0.005f)
+        val gain = 1f / agcPeak
+
+        samples = FloatArray(data.size) { (data[it] * gain).coerceIn(-1f, 1f) }
+        invalidate()
     }
 
     override fun onDraw(canvas: Canvas) {

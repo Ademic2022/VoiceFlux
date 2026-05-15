@@ -30,17 +30,16 @@ bool AudioEngine::openStreams() {
     oboe::AudioStreamBuilder inBuilder, outBuilder;
 
     // ---- Output stream ----
-    outBuilder
-        .setDirection(oboe::Direction::Output)
-        .setPerformanceMode(oboe::PerformanceMode::LowLatency)
-        .setSharingMode(oboe::SharingMode::Exclusive)
-        .setFormat(oboe::AudioFormat::Float)
-        .setChannelCount(oboe::ChannelCount::Mono)
-        .setSampleRate(sampleRate_)
-        .setDataCallback(this)
-        .setErrorCallback(this);
-
-    oboe::Result result = outBuilder.openManagedStream(outputStream_);
+    // Oboe setters return AudioStreamBuilder* so after the first dot call we chain with ->
+    oboe::Result result = outBuilder.setDirection(oboe::Direction::Output)
+        ->setPerformanceMode(oboe::PerformanceMode::LowLatency)
+        ->setSharingMode(oboe::SharingMode::Exclusive)
+        ->setFormat(oboe::AudioFormat::Float)
+        ->setChannelCount(oboe::ChannelCount::Mono)
+        ->setSampleRate(sampleRate_)
+        ->setDataCallback(this)
+        ->setErrorCallback(this)
+        ->openManagedStream(outputStream_);
     if (result != oboe::Result::OK) {
         LOGE("Failed to open output stream: %s", oboe::convertToText(result));
         return false;
@@ -52,16 +51,30 @@ bool AudioEngine::openStreams() {
          outputStream_->getBufferSizeInFrames());
 
     // ---- Input stream — match output sample rate ----
-    inBuilder
-        .setDirection(oboe::Direction::Input)
-        .setPerformanceMode(oboe::PerformanceMode::LowLatency)
-        .setSharingMode(oboe::SharingMode::Exclusive)
-        .setFormat(oboe::AudioFormat::Float)
-        .setChannelCount(oboe::ChannelCount::Mono)
-        .setSampleRate(sampleRate_)
-        .setInputPreset(oboe::InputPreset::VoiceCommunication); // best for voice
+    // Try EXCLUSIVE + VoiceCommunication first (best for real devices).
+    // Fall back to SHARED + default preset (needed for emulators and some devices).
+    result = inBuilder.setDirection(oboe::Direction::Input)
+        ->setPerformanceMode(oboe::PerformanceMode::LowLatency)
+        ->setSharingMode(oboe::SharingMode::Exclusive)
+        ->setFormat(oboe::AudioFormat::Float)
+        ->setChannelCount(oboe::ChannelCount::Mono)
+        ->setSampleRate(sampleRate_)
+        ->setInputPreset(oboe::InputPreset::VoiceCommunication)
+        ->openManagedStream(inputStream_);
 
-    result = inBuilder.openManagedStream(inputStream_);
+    if (result != oboe::Result::OK) {
+        LOGI("Exclusive input failed (%s), retrying with Shared mode",
+             oboe::convertToText(result));
+        oboe::AudioStreamBuilder fallbackIn;
+        result = fallbackIn.setDirection(oboe::Direction::Input)
+            ->setPerformanceMode(oboe::PerformanceMode::None)
+            ->setSharingMode(oboe::SharingMode::Shared)
+            ->setFormat(oboe::AudioFormat::Float)
+            ->setChannelCount(oboe::ChannelCount::Mono)
+            ->setSampleRate(sampleRate_)
+            ->openManagedStream(inputStream_);
+    }
+
     if (result != oboe::Result::OK) {
         LOGE("Failed to open input stream: %s", oboe::convertToText(result));
         outputStream_->close();
@@ -125,17 +138,34 @@ oboe::DataCallbackResult AudioEngine::onAudioReady(
         }
     }
 
-    // ---- Pull from FIFO and process ----
+    // ---- Fill processing scratch (test tone OR microphone) ----
     if (static_cast<int>(processScratch_.size()) < numFrames)
         processScratch_.resize(numFrames * 2);
 
-    const int available = inputFifo_.available();
-    if (available >= numFrames) {
-        inputFifo_.read(processScratch_.data(), numFrames);
+    if (testToneEnabled_.load()) {
+        // Bandlimited sawtooth at 150 Hz — sounds voice-like through the DSP chain
+        static constexpr float kFundamental = 150.f;
+        const float phaseInc = kFundamental / static_cast<float>(sampleRate_);
+        for (int i = 0; i < numFrames; ++i) {
+            float s = 0.f;
+            for (int h = 1; h <= 6; ++h) {
+                s += std::sin(2.f * static_cast<float>(M_PI) * testTonePhase_ * h)
+                     / static_cast<float>(h);
+            }
+            processScratch_[i] = s * 0.25f;
+            testTonePhase_ += phaseInc;
+            if (testTonePhase_ >= 1.f) testTonePhase_ -= 1.f;
+        }
         processor_.process(processScratch_.data(), out, numFrames);
     } else {
-        // Not enough input yet — output silence to avoid underrun
-        std::fill(out, out + numFrames, 0.f);
+        const int available = inputFifo_.available();
+        if (available >= numFrames) {
+            inputFifo_.read(processScratch_.data(), numFrames);
+            processor_.process(processScratch_.data(), out, numFrames);
+        } else {
+            // Not enough mic input yet — output silence to avoid underrun
+            std::fill(out, out + numFrames, 0.f);
+        }
     }
 
     // ---- Update waveform snapshot for visualiser ----

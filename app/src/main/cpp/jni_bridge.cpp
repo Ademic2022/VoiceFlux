@@ -72,6 +72,16 @@ Java_com_voiceflux_app_AudioEngine_nativeSetGain(JNIEnv*, jobject, jfloat gain) 
     if (g_engine) g_engine->processor().params().gain.store(gain);
 }
 
+JNIEXPORT void JNICALL
+Java_com_voiceflux_app_AudioEngine_nativeSetTestTone(JNIEnv*, jobject, jboolean enabled) {
+    if (g_engine) g_engine->setTestTone(enabled == JNI_TRUE);
+}
+
+JNIEXPORT jboolean JNICALL
+Java_com_voiceflux_app_AudioEngine_nativeIsTestTone(JNIEnv*, jobject) {
+    return (g_engine && g_engine->isTestTone()) ? JNI_TRUE : JNI_FALSE;
+}
+
 JNIEXPORT jfloat JNICALL
 Java_com_voiceflux_app_AudioEngine_nativeGetLatencyMs(JNIEnv*, jobject) {
     return g_engine ? g_engine->getLatencyMs() : 0.f;

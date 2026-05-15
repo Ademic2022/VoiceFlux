@@ -9,13 +9,15 @@ android {
 
     defaultConfig {
         applicationId = "com.voiceflux.app"
-        minSdk = 27   // Oreo MR1 — required for AAudio/Oboe low-latency path
+        minSdk = 23   // Marshmallow+ — Oboe falls back to OpenSL ES on API < 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
         ndk {
-            abiFilters += listOf("arm64-v8a", "x86_64")
+            // arm64-v8a: all modern phones (2016+)
+            // armeabi-v7a: older/budget phones with 32-bit CPU
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a")
         }
 
         externalNativeBuild {

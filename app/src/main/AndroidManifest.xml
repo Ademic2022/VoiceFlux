@@ -6,15 +6,15 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
-    <!-- Background service -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <!-- Background service (FOREGROUND_SERVICE requires API 28; ignored on older devices) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"
+        tools:ignore="ProtectedPermissions" />
+    <!-- FOREGROUND_SERVICE_MICROPHONE requires API 34; safe to declare on older devices -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE"
+        tools:ignore="ProtectedPermissions" />
 
     <!-- Keep CPU awake during processing -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-
-    <!-- Bluetooth headset -->
-    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
     <uses-feature
         android:name="android.hardware.microphone"
@@ -39,11 +39,13 @@
             </intent-filter>
         </activity>
 
-        <!-- Foreground service so processing survives background -->
+        <!-- Foreground service so processing survives background.
+             foregroundServiceType="microphone" is ignored on API < 29 and required on API 29+. -->
         <service
             android:name=".AudioService"
             android:exported="false"
-            android:foregroundServiceType="microphone" />
+            android:foregroundServiceType="microphone"
+            tools:targetApi="29" />
 
     </application>
 

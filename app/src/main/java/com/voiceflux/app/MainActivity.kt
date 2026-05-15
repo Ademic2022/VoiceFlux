@@ -129,6 +129,15 @@ class MainActivity : AppCompatActivity() {
             if (hasAudioPermission()) vm.toggleRunning()
             else requestPermission.launch(Manifest.permission.RECORD_AUDIO)
         }
+
+        binding.chipPreview.setOnCheckedChangeListener { _, checked ->
+            if (checked && !hasAudioPermission()) {
+                requestPermission.launch(Manifest.permission.RECORD_AUDIO)
+                binding.chipPreview.isChecked = false
+                return@setOnCheckedChangeListener
+            }
+            vm.toggleTestTone()
+        }
     }
 
     private fun observeViewModel() {
@@ -142,6 +151,16 @@ class MainActivity : AppCompatActivity() {
 
             if (running) startService(Intent(this, AudioService::class.java))
             else         stopService(Intent(this, AudioService::class.java))
+        }
+
+        vm.isTestTone.observe(this) { active ->
+            binding.chipPreview.isChecked = active
+            // Highlight chip with accent colour when active
+            binding.chipPreview.chipBackgroundColor =
+                android.content.res.ColorStateList.valueOf(
+                    if (active) getColor(R.color.accent_purple)
+                    else        getColor(R.color.bg_card_elevated)
+                )
         }
 
         vm.selectedPreset.observe(this) { preset ->

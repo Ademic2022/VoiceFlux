@@ -9,7 +9,7 @@ namespace voiceflux {
 // Latency = kFrameSize / sampleRate  (~42 ms at 48 kHz, frame 2048).
 class PitchShifter {
 public:
-    static constexpr int kFrameSize = 2048;
+    static constexpr int kFrameSize = 1024;
     static constexpr int kOverlap   = 4;
     static constexpr int kHopSize   = kFrameSize / kOverlap;
 

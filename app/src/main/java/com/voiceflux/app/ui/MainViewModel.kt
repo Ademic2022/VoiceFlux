@@ -24,11 +24,13 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     private val _selectedPreset   = MutableLiveData<VoicePreset>()
     private val _latencyMs        = MutableLiveData(0f)
     private val _waveformData     = MutableLiveData<FloatArray>()
+    private val _isTestTone       = MutableLiveData(false)
 
     val isRunning:      LiveData<Boolean>     = _isRunning
     val selectedPreset: LiveData<VoicePreset> = _selectedPreset
     val latencyMs:      LiveData<Float>       = _latencyMs
     val waveformData:   LiveData<FloatArray>  = _waveformData
+    val isTestTone:     LiveData<Boolean>     = _isTestTone
 
     // Slider state (driven by UI; sent to engine)
     var pitch:      Float = 0f;      private set
@@ -76,6 +78,14 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         setDistortion(preset.distortion)
         setEcho(preset.echo)
         setGain(preset.gain)
+    }
+
+    fun toggleTestTone() {
+        val next = !(_isTestTone.value ?: false)
+        _isTestTone.value = next
+        engine.setTestTone(next)
+        // Auto-start engine so the tone is audible immediately
+        if (next && _isRunning.value != true) startEngine()
     }
 
     fun setPitch(v: Float)      { pitch      = v; engine.setPitch(v) }

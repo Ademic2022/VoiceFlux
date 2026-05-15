@@ -12,6 +12,7 @@
     <string name="distortion">Distortion</string>
     <string name="echo">Echo</string>
     <string name="gain">Gain</string>
+    <string name="preview">Preview</string>
     <string name="latency_default">-- ms</string>
     <string name="latency_fmt">%.0f ms</string>
     <string name="permission_denied">Microphone permission required</string>

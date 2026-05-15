@@ -19,6 +19,8 @@ class AudioEngine {
     fun setDistortion(amount: Float)    = nativeSetDistortion(amount)
     fun setEcho(amount: Float)          = nativeSetEcho(amount)
     fun setGain(amount: Float)          = nativeSetGain(amount)
+    fun setTestTone(enabled: Boolean)   = nativeSetTestTone(enabled)
+    fun isTestTone(): Boolean           = nativeIsTestTone()
     fun getLatencyMs(): Float           = nativeGetLatencyMs()
     fun getWaveformData(buf: FloatArray): Int = nativeGetWaveformData(buf)
 
@@ -35,6 +37,8 @@ class AudioEngine {
     private external fun nativeSetDistortion(amount: Float)
     private external fun nativeSetEcho(amount: Float)
     private external fun nativeSetGain(amount: Float)
+    private external fun nativeSetTestTone(enabled: Boolean)
+    private external fun nativeIsTestTone(): Boolean
     private external fun nativeGetLatencyMs(): Float
     private external fun nativeGetWaveformData(buf: FloatArray): Int
 

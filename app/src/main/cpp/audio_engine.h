@@ -72,6 +72,11 @@ public:
 
     float getLatencyMs() const { return latencyMs_.load(); }
 
+    // When enabled, feeds a 150 Hz buzz through the DSP chain so each preset
+    // can be auditioned without a microphone.
+    void setTestTone(bool enabled) { testToneEnabled_.store(enabled); }
+    bool isTestTone() const        { return testToneEnabled_.load(); }
+
     // Copy the latest waveform snapshot (up to maxSamples).
     int  getWaveformData(float* buf, int maxSamples);
 
@@ -96,6 +101,8 @@ private:
 
     std::atomic<bool>  running_{false};
     std::atomic<float> latencyMs_{0.f};
+    std::atomic<bool>  testToneEnabled_{false};
+    float              testTonePhase_{0.f};
 
     // Waveform ring buffer for the visualiser
     static constexpr int kWaveformSize = 1024;

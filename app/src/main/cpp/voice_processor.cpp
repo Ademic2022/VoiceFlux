@@ -30,33 +30,46 @@ void VoiceProcessor::applyPreset(PresetId id) {
             params_.echoAmount       = 0.f;
             params_.gain             = 1.f;
             params_.effectMode       = 0;
+            params_.eqLow            = 0.f;
+            params_.eqMid            = 0.f;
+            params_.eqHigh           = 0.f;
             break;
         case PresetId::CHILD:
-            params_.pitchSemitones   = 8.f;
-            params_.formantSemitones = 5.f;
-            params_.reverbMix        = 0.1f;
+            // Phase vocoder shifts formants proportionally with pitch — no extra formant stage needed.
+            params_.pitchSemitones   = 7.f;
+            params_.formantSemitones = 0.f;
+            params_.reverbMix        = 0.08f;
             params_.distortionAmount = 0.f;
-            params_.echoAmount       = 0.05f;
+            params_.echoAmount       = 0.f;
             params_.gain             = 1.1f;
             params_.effectMode       = 0;
+            params_.eqLow            = -3.f;
+            params_.eqMid            = 2.f;
+            params_.eqHigh           = 4.f;
             break;
         case PresetId::DEEP_MALE:
             params_.pitchSemitones   = -5.f;
-            params_.formantSemitones = -4.f;
-            params_.reverbMix        = 0.2f;
+            params_.formantSemitones = 0.f;
+            params_.reverbMix        = 0.18f;
             params_.distortionAmount = 0.f;
             params_.echoAmount       = 0.f;
             params_.gain             = 1.2f;
             params_.effectMode       = 0;
+            params_.eqLow            = 4.f;
+            params_.eqMid            = -1.f;
+            params_.eqHigh           = -3.f;
             break;
         case PresetId::FEMALE:
             params_.pitchSemitones   = 5.f;
-            params_.formantSemitones = 4.f;
-            params_.reverbMix        = 0.15f;
+            params_.formantSemitones = 0.f;
+            params_.reverbMix        = 0.12f;
             params_.distortionAmount = 0.f;
             params_.echoAmount       = 0.f;
             params_.gain             = 1.0f;
             params_.effectMode       = 0;
+            params_.eqLow            = -2.f;
+            params_.eqMid            = 1.f;
+            params_.eqHigh           = 3.f;
             break;
         case PresetId::ROBOT:
             params_.pitchSemitones   = 0.f;
@@ -65,34 +78,46 @@ void VoiceProcessor::applyPreset(PresetId id) {
             params_.distortionAmount = 0.2f;
             params_.echoAmount       = 0.15f;
             params_.gain             = 1.0f;
-            params_.effectMode       = 1; // ring mod
+            params_.effectMode       = 1;
+            params_.eqLow            = 0.f;
+            params_.eqMid            = 0.f;
+            params_.eqHigh           = 0.f;
             break;
         case PresetId::MONSTER:
-            params_.pitchSemitones   = -8.f;
-            params_.formantSemitones = -6.f;
-            params_.reverbMix        = 0.4f;
-            params_.distortionAmount = 0.45f;
-            params_.echoAmount       = 0.3f;
-            params_.gain             = 1.4f;
+            params_.pitchSemitones   = -7.f;
+            params_.formantSemitones = 0.f;
+            params_.reverbMix        = 0.35f;
+            params_.distortionAmount = 0.3f;
+            params_.echoAmount       = 0.2f;
+            params_.gain             = 1.3f;
             params_.effectMode       = 0;
+            params_.eqLow            = 6.f;
+            params_.eqMid            = -2.f;
+            params_.eqHigh           = -4.f;
             break;
         case PresetId::GRANDMA:
             params_.pitchSemitones   = 3.f;
-            params_.formantSemitones = 2.f;
-            params_.reverbMix        = 0.3f;
-            params_.distortionAmount = 0.08f;
-            params_.echoAmount       = 0.2f;
+            params_.formantSemitones = 0.f;
+            params_.reverbMix        = 0.25f;
+            params_.distortionAmount = 0.06f;
+            params_.echoAmount       = 0.15f;
             params_.gain             = 0.9f;
             params_.effectMode       = 0;
+            params_.eqLow            = -2.f;
+            params_.eqMid            = 3.f;
+            params_.eqHigh           = -2.f;
             break;
         case PresetId::RADIO:
             params_.pitchSemitones   = 0.f;
             params_.formantSemitones = 0.f;
-            params_.reverbMix        = 0.05f;
-            params_.distortionAmount = 0.35f;
-            params_.echoAmount       = 0.08f;
+            params_.reverbMix        = 0.f;
+            params_.distortionAmount = 0.3f;
+            params_.echoAmount       = 0.f;
             params_.gain             = 1.1f;
-            params_.effectMode       = 2; // bandpass
+            params_.effectMode       = 2;
+            params_.eqLow            = 0.f;
+            params_.eqMid            = 0.f;
+            params_.eqHigh           = 0.f;
             break;
     }
 }
@@ -117,15 +142,19 @@ void VoiceProcessor::updateEffectParams() {
     if (mode == 1) {
         robot_.setCarrierFreq(50.f);
         robot_.setDepth(0.8f);
-    } else if (mode == 2) {
-        // Radio: bandpass EQ
-        eq_.setLowGain(-12.f);
-        eq_.setMidGain(4.f);
-        eq_.setHighGain(-8.f);
-    } else {
         eq_.setLowGain(0.f);
         eq_.setMidGain(0.f);
         eq_.setHighGain(0.f);
+    } else if (mode == 2) {
+        // Radio: telephone bandpass (hard low/high cut + slight mid boost)
+        eq_.setLowGain(-14.f);
+        eq_.setMidGain(3.f);
+        eq_.setHighGain(-12.f);
+    } else {
+        // Use per-preset EQ for natural voice coloring
+        eq_.setLowGain(params_.eqLow.load());
+        eq_.setMidGain(params_.eqMid.load());
+        eq_.setHighGain(params_.eqHigh.load());
     }
 }
 

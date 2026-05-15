@@ -28,9 +28,7 @@ class PresetAdapter(
             val selected    = preset.id == selectedId
             b.root.isSelected = selected
             b.root.strokeWidth = if (selected) 3 else 0
-            b.root.strokeColor = ContextCompat.getColorStateList(
-                b.root.context, R.color.accent_purple
-            )
+            b.root.strokeColor = ContextCompat.getColor(b.root.context, R.color.accent_purple)
             b.root.setOnClickListener { onSelect(preset) }
         }
     }

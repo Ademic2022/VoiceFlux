@@ -18,6 +18,9 @@ struct ProcessorParams {
     std::atomic<float> echoAmount{0.f};        // 0-1
     std::atomic<float> gain{1.f};             // 0-2
     std::atomic<int>   effectMode{0};         // 0=normal,1=robot,2=radio
+    std::atomic<float> eqLow{0.f};           // dB, low shelf (~200 Hz)
+    std::atomic<float> eqMid{0.f};           // dB, peak     (~2 kHz)
+    std::atomic<float> eqHigh{0.f};          // dB, high shelf (~8 kHz)
 };
 
 // Preset identifiers — must match VoicePreset.kt ordinals.
@@ -45,7 +48,7 @@ public:
     void reset();
 
 private:
-    int            sampleRate_;
+    [[maybe_unused]] int sampleRate_;
     ProcessorParams params_;
 
     PitchShifter    pitchShifter_;
